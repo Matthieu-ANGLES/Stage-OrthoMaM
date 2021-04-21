@@ -1,50 +1,174 @@
 #!/usr/bin/env python3
 #_*_ coding:utf-8 _*_
 
-from Bio import Entrez
-from Bio import SeqIO
+import os, sys, re, getopt
+# os pour lancement cmd bash
+# sys pour l'argument en entrée
+# re pour regex
+# getopt pour la gestions des options et erreurs
+
+import zipfile
+# pour accéder à un fichier zip
+
+from colorama import Fore, Style, Back
+# pour couleur dans terminal
+
 
 #----------------------------------------------------------------------
 """
-Recherche orthologues
+Récupération des geneID du génome humain
 """
 
-Entrez.email = "matthieu.angles@hotmail.fr"
+def humanGeneID ():
+    cmd_Human = "./datasets download genome taxon human --exclude-gene --exclude-protein --exclude-rna"
+    print ("Lancement commande bash :\n","./datasets download genome taxon human --exclude-gene --exclude-protein --exclude-rna")
+    os.system(cmd_Human)
 
-# Récupération d'une liste d'ID de séquences résultant d'une requête : fichier XML
-ma_req = Entrez.esearch(db="homologene", term="Homo sapiens[Orgn]")
-    # requete à améliorer pour obtenir les orthologues 
-    # choix db ??
-
-# mon_res devient un dictionnaire
-mon_res = Entrez.read(ma_req)
-
-#print("Count : ", mon_res["Count"])     # nbre de séquences
-#print("Liste Id : ", mon_res["IdList"]) # liste des id de séquences
+# tail -n+2 GCF_000001405.39_GRCh38.p13_feature_table.txt | cut -f15,16 |sort -u > gene.list
+# tail -n+2 GCF_000001405.39_GRCh38.p13_feature_table.txt | cut -f15,16,20 |sort -u > gene2.list
+# tail -n+2 GCF_000001405.39_GRCh38.p13_feature_table.txt | cut -f1,15,16,20 |sort -u > gene3.list
 
 #----------------------------------------------------------------------
 """
-Récupération identifiants
+Lancement datasets pour recherche des orthologues (en fonction de la liste des gènes récupérée)
 """
-list_id = mon_res["IdList"]
-print("Nombre d'Id : ", len(list_id))
-print ("Liste Id : ", list_id)
 
-ma_req.close()
-#print("\n")
+def datasetsOrthologues (symbole, taxon):
+
+    print("Download Ortholog Data for : ", Fore.GREEN,symbole,Style.RESET_ALL)
+    cmd_Ortho = "./datasets download ortholog symbol " + symbole + " --taxon " + taxon + " --exclude-gene --exclude-protein --exclude-rna --filename " + symbole + "_dataset.zip"
+    #print ("Lancement commande bash : ","./datasets download ortholog symbol " +  symbole+ " --taxon " + taxon + " --exclude-gene --exclude-protein --exclude-rna --filename " + symbole + "_dataset.zip")
+    os.system(cmd_Ortho)
+
+# datasetsOrthologues ("gapdh", "mouse")
 
 #----------------------------------------------------------------------
 """
-Ecriture des seq au format genBank
-Cette parti est aussi à améliorer
+LIRE un TSV contenu dans un fichier Zip (ici un zip de téléchargement d'orthologues sur NCBI)
 """
 
-# On récupère dans la banque de données protein les séquences de la liste au format Genbank
-fic_seq = Entrez.efetch(db="protein", id=list_id, rettype="gb")
+def parseZipFindTSV (fzip): # en parametre = nom du fichier zip ortho (gene en cours)
 
-# Génère un ensemble de objet seqRecord
-mes_seq = SeqIO.parse(fic_seq,"gb")
+    #path = "mouse_dataset.zip"
 
-# Ecriture de l'ensemble dans un fichier output au format fasta
-SeqIO.write(mes_seq,"maListeOrtho.fasta", "fasta")
-fic_seq.close()
+    zfile = zipfile.ZipFile(fzip,'r')
+
+    for filename in zfile.namelist():
+        # afficher le contenu
+        # print (filename)
+        # extraire et réécrire un tsv
+        if (filename == "ncbi_dataset/data/data_table.tsv"):
+            extract = zfile.read(filename)
+            with open ("data.tsv", "w+b") as data:
+                data.write(extract)
+    os.remove(fzip)
+
+
+#----------------------------------------------------------------------
+'''
+Fonction parseOrthoTSV : 
+'''
+
+def parseOrthoTSV ():
+
+    # parseZipFindTSV()
+
+    with open ("data.tsv","r") as input :
+
+        with open ("maListeOtho.tsv","a+") as output :
+            gene_taxon_precedent = "none"
+            for line in input :
+                #print(line)
+                parse = line.split("\t")
+                gene_id = parse[0]
+                gene_symbol = parse[1]
+                gene_taxon = parse[3]
+                if (gene_taxon!=gene_taxon_precedent):
+                    if (gene_taxon== "Homo sapiens") or (gene_taxon== "Mus musculus") or (gene_taxon== "Canis lupus familiaris"):
+                        output.write(gene_taxon+"\t"+gene_symbol+"\t"+gene_id+"\n")
+
+                gene_id_precedent = gene_id
+                gene_symbol_precedent = gene_symbol
+                gene_taxon_precedent = gene_taxon
+    os.remove("data.tsv")
+
+
+
+#----------------------------------------------------------------------
+"""
+Diagramme de Venn
+"""
+
+def diag_venn2 ():
+    '''
+    set1 = set(['A', 'B', 'C'])
+    set2 = set(['A', 'B', 'D'])
+    set3 = set(['A', 'E', 'F'])
+
+    venn3([set1, set2, set3], ('Group1', 'Group2', 'Group3'))
+    '''
+    homo = set(['Gene1', 'Gene2', 'Gene3'])
+    mus = set(['Gene1', 'Gene2', 'Gene4'])
+    canis = set(['Gene1', 'Gene5', 'Gene3'])
+
+    venn3([homo, mus, canis], ('homo', 'mus', 'canis'))
+
+    
+
+    plt.show()  
+
+
+#----------------------------------------------------------------------
+"""
+main
+"""
+def main(argv):
+
+    # Module getopt pour gestion des args
+    # short_options = "hi:o:f:"
+    # long_options = ["help", "input=", "output="]
+    # rmv = False
+    
+    try:
+        # humanGeneID()
+
+        with open ("gene3.list",'r') as geneList:
+            for line in geneList :
+                parse = line.split("\t")
+                # POUR gene1.list ET gene2.list :
+                #gene_symbol = parse[0]
+                #gene_attribute = parse[2]
+                #gene_product_acc = parse[3]
+                
+                # POUR gene3.list :
+                gene_feature = parse[0]
+                gene_symbol = parse[1]
+                gene_id = parse[2]
+                gene_attribute = parse[3]
+                
+                if ("-" not in gene_symbol) and (gene_attribute < "32") and (gene_feature == "CDS"):
+                    datasetsOrthologues (gene_symbol, "human")
+                    fzip = gene_symbol+"_dataset.zip"
+                    if os.path.isfile(fzip):
+                        # if pour eviter l'arrêt du script lorsque "Error: no valid NCBI gene identifiers, exiting"
+                        # exemple   Download Data for :  ACOT1
+                        #           Error: no valid NCBI gene identifiers, exiting
+                        parseZipFindTSV(fzip)
+                        parseOrthoTSV()
+
+    
+
+    # Couple try/except avec Module getopt pour gestion des args
+    except getopt.error as err:
+        print (str(err))
+        # usage()
+        #sys.exit(2)
+
+#----------------------------------------------------------------------
+
+if __name__ == "__main__" :
+    main(sys.argv[1:])
+
+
+# gestion des erreurs à revoir 
+#   car "Error: no valid NCBI gene identifiers, exiting"
