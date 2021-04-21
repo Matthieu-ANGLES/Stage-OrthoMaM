@@ -73,23 +73,21 @@ def parseOrthoTSV ():
 
     # parseZipFindTSV()
 
-    with open ("data.tsv","r") as input :
+    with open ("data.tsv","r") as input, open ("maListeOtho.tsv","a+") as output :
+        gene_taxon_precedent = "none"
+        for line in input :
+            #print(line)
+            parse = line.split("\t")
+            gene_id = parse[0]
+            gene_symbol = parse[1]
+            gene_taxon = parse[3]
+            if (gene_taxon!=gene_taxon_precedent):
+                if (gene_taxon== "Homo sapiens") or (gene_taxon== "Mus musculus") or (gene_taxon== "Canis lupus familiaris"):
+                    output.write(gene_taxon+"\t"+gene_symbol+"\t"+gene_id+"\n")
 
-        with open ("maListeOtho.tsv","a+") as output :
-            gene_taxon_precedent = "none"
-            for line in input :
-                #print(line)
-                parse = line.split("\t")
-                gene_id = parse[0]
-                gene_symbol = parse[1]
-                gene_taxon = parse[3]
-                if (gene_taxon!=gene_taxon_precedent):
-                    if (gene_taxon== "Homo sapiens") or (gene_taxon== "Mus musculus") or (gene_taxon== "Canis lupus familiaris"):
-                        output.write(gene_taxon+"\t"+gene_symbol+"\t"+gene_id+"\n")
-
-                gene_id_precedent = gene_id
-                gene_symbol_precedent = gene_symbol
-                gene_taxon_precedent = gene_taxon
+            gene_id_precedent = gene_id
+            gene_symbol_precedent = gene_symbol
+            gene_taxon_precedent = gene_taxon
     os.remove("data.tsv")
 
 
@@ -99,22 +97,40 @@ def parseOrthoTSV ():
 Diagramme de Venn
 """
 
-def diag_venn2 ():
-    '''
-    set1 = set(['A', 'B', 'C'])
-    set2 = set(['A', 'B', 'D'])
-    set3 = set(['A', 'E', 'F'])
-
-    venn3([set1, set2, set3], ('Group1', 'Group2', 'Group3'))
-    '''
-    homo = set(['Gene1', 'Gene2', 'Gene3'])
-    mus = set(['Gene1', 'Gene2', 'Gene4'])
-    canis = set(['Gene1', 'Gene5', 'Gene3'])
-
-    venn3([homo, mus, canis], ('homo', 'mus', 'canis'))
-
+def diagVenn ():
     
+    with open ("maListeOtho.tsv",'r') as listeOrtho :
+        
+        # Lecture du fichier tsv généré et créations de Dictionnaires Primaires
+        dp_gene_symbole= {}
+        dp_gene_id = {}
+        
+        for line in listeOrtho :
+            parse = line.split("\t")
+            gene_taxon = parse[0]
+            gene_symbol = parse[1].upper()
+            gene_id = parse[2]
 
+            if gene_taxon not in dp_gene_symbole.keys() :
+                dp_gene_symbole[gene_taxon] = [gene_symbol]
+                dp_gene_id[gene_taxon] = [gene_id]
+            else :
+                if gene_symbol not in dp_gene_symbole.values() :
+                    dp_gene_symbole[gene_taxon].append(gene_symbol)
+                    dp_gene_id[gene_taxon].append(gene_id)
+        #print (dp_gene_symbole)
+
+        for k, v in dp_gene_symbole.items():
+            #print (k, v)
+            if k == "Homo sapiens" :
+                humain = set(dp_gene_symbole[k])
+            if k == "Mus musculus" :
+                souris = set(dp_gene_symbole[k])
+            if k == "Canis lupus familiaris" :
+                chien = set(dp_gene_symbole[k])
+
+        venn3([humain, souris, chien], ('Homo sapiens', 'Mus musculus', 'Canis lupus'))
+        
     plt.show()  
 
 
@@ -133,7 +149,13 @@ def main(argv):
         # humanGeneID()
 
         with open ("gene3.list",'r') as geneList:
+            nb_gene_total = 0
+            nb_gene_symbol_with_attribute_or_not_CDS = 0
+            nb_gene_pb_zipfile = 0
+            nb_gene_used = 0
+            
             for line in geneList :
+                nb_gene_total +=1
                 parse = line.split("\t")
                 # POUR gene1.list ET gene2.list :
                 #gene_symbol = parse[0]
@@ -147,16 +169,25 @@ def main(argv):
                 gene_attribute = parse[3]
                 
                 if ("-" not in gene_symbol) and (gene_attribute < "32") and (gene_feature == "CDS"):
+                    nb_gene_symbol_with_attribute_or_not_CDS += 1
+                    
                     datasetsOrthologues (gene_symbol, "human")
                     fzip = gene_symbol+"_dataset.zip"
-                    if os.path.isfile(fzip):
-                        # if pour eviter l'arrêt du script lorsque "Error: no valid NCBI gene identifiers, exiting"
+                    if os.path.isfile(fzip) or zipfile.is_zipfile(fzip):
+                        # if os.path pour eviter l'arrêt du script lorsque "Error: no valid NCBI gene identifiers, exiting"
                         # exemple   Download Data for :  ACOT1
                         #           Error: no valid NCBI gene identifiers, exiting
+                        # if is_zipfile pour le cas où le zip est un fichier txt vide
+                        # exemple   zipfile.BadZipFile : File is not a zip File
+                        nb_gene_used +=1
                         parseZipFindTSV(fzip)
                         parseOrthoTSV()
+                    else :
+                        nb_gene_pb_zipfile += 1
 
-    
+            print ("nb gènes recherchés : ",nb_gene_used,"n", "nb gènes de la liste = ",nb_gene_total,"n", "nb gènes avec symboles exclus = ",nb_gene_symbol_with_attribute_or_not_CDS,"n", "nb gènes avec problème de zip = ",nb_gene_pb_zipfile)
+            
+            diagVenn()
 
     # Couple try/except avec Module getopt pour gestion des args
     except getopt.error as err:
@@ -168,7 +199,3 @@ def main(argv):
 
 if __name__ == "__main__" :
     main(sys.argv[1:])
-
-
-# gestion des erreurs à revoir 
-#   car "Error: no valid NCBI gene identifiers, exiting"
