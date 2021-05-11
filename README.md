@@ -1,6 +1,23 @@
 # Stage-OrthoMaM
+
 _____________________________________________________________________________________________________________________________________________________________
-Etape1
+Etape1 (Finale)
+Programme principal :
+  buildOrtholog.py
+ 
+  Programme secondaire (importé) :
+    selectHumanGeneID.py
+    downloadRelevantGCF.py
+    addGenomes.py
+
+Lancement :
+	summaryFile = sys.argv[1]	        # ici  resume_assembly_summary.txt
+	coreTaxonList = sys.argv[2]	      # ici  HomoMusCanis.id (liste des 3 taxons piliers = noyaux)
+	orthologFile = sys.argv[3]		    # ici  gene_orthologs (fourni par NCBI)
+	outputFastaFolder = sys.argv[4]	  # ici  sous répertoire du répertoire destinataire
+
+_____________________________________________________________________________________________________________________________________________________________
+Etape1 (préliminaire)
 
 addGeneID.py :
 Récupère et génère une liste de gene-id à partir d’une liste de taxons.
