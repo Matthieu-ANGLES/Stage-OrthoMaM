@@ -5,7 +5,7 @@ Etape1 (Finale)
 
 Programme principal :
 
-  buildOrtholog.py
+	buildOrtholog.py
  
   Programme secondaire (importé) :
   
