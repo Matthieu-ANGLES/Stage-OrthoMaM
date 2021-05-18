@@ -17,13 +17,15 @@ Programme principal :
 
 Lancement :
 
-	summaryFile = sys.argv[1]	        # ici  resume_assembly_summary.txt
+./buildOrtholog.py resume_assembly_summary.txt HomoMusCanis.id gene_orthologs orthologFasta
+
+	summaryFile = sys.argv[1]	        #  resume_assembly_summary.txt (fourni par NCBI)
 	
-	coreTaxonList = sys.argv[2]	      # ici  HomoMusCanis.id (liste des 3 taxons piliers = noyaux)
+	coreTaxonList = sys.argv[2]	      	#  HomoMusCanis.id (liste des 3 taxons piliers = noyaux)
 	
-	orthologFile = sys.argv[3]		    # ici  gene_orthologs (fourni par NCBI)
+	orthologFile = sys.argv[3]		#  gene_orthologs (fourni par NCBI)
 	
-	outputFastaFolder = sys.argv[4]	  # ici  sous répertoire du répertoire destinataire
+	orthologFasta = sys.argv[4]	  	#  répertoire destinataire
 
 _____________________________________________________________________________________________________________________________________________________________
 Etape1 (préliminaire)
