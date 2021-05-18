@@ -4,19 +4,27 @@
 import os, sys
 
 #------------------------------------------------------------------------------
+'''
+Help message
+'''
 
-'''
-Fonction Usage
-'''
 def usage() :
-    print ("\nUsage :")
-    print ("For just one taxon")
-    print ("./addGenome [listHumanTaxon*] [gene_orthologs(NCBI)] [GCF File(NCBI)] [taxon ID] [taxon name] [Output directory]")
-    print("* : Get ListHumanTaxon with addGenome.py")
+    
+    sys.stderr.write('''
+
+    downloadRalevantGCF.py
+    
+    This module generates the "GCF.list" file used by addGenomes.py
+    It has 3 fields :
+    tax_name    GCF_file_name   tax_id
+    
+    Usage :  python3 downloadGCF 
+    
+    ''')
 
 #------------------------------------------------------------------------------
 
-def downloadGCF(summaryfile, outFile) :
+def downloadGCF(summaryfile, outputGCFFolder, outFile) :
     with open (summaryfile, 'r') as inputFile, open (outFile, 'w') as GCF_liste :
         for line in inputFile :
             if line.startswith("#"):
@@ -33,8 +41,8 @@ def downloadGCF(summaryfile, outFile) :
             if (genomeCategory == "representative genome") or (genomeCategory == "reference genome") :
                 GCF_CDS_File = tmp[-1] + "_cds_from_genomic.fna"
                 GCF_Prot_File = tmp[-1] + "_protein.faa"                
-                cmd1 = "wget "+GCF_CDS_URL+"; gzip -d "+GCF_CDS_File
-                cmd2 = "wget "+GCF_Prot_URL+"; gzip -d "+GCF_Prot_File
+                cmd1 = "cd "+outputGCFFolder+"; wget "+GCF_CDS_URL+"; gzip -d "+GCF_CDS_File
+                cmd2 = "cd "+outputGCFFolder+"; wget "+GCF_Prot_URL+"; gzip -d "+GCF_Prot_File
                 os.system(cmd1)
                 os.system(cmd2)
 

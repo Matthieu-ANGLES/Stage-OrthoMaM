@@ -3,16 +3,37 @@
 
 import sys
 
-def helpMessage():
-    print ("This program identify the human genes that will be in orthoMaM based. Each of these genes have a 1:1 orthologs with all the core species\n\n\
-    usage: python orthologParse.py gene_orthologs.tsv core_species.list gene_list.out \n\
-    -gene_orthologs.tsv : is supposed to have 5 fields and to contain only 1:1 ortholgs: \n\
-    tax_id GeneID  relationship    Other_tax_id    Other_GeneID (following NCBI convention: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene-ortholog.gz )\n \
-    -core_species.list should contain one taxon id per line, for a core made of Homo Mus and Canis it will be (human should always be first):\n\
-    9606\n\
-    10090\n\
-    9615")
+#------------------------------------------------------------------------------
+'''
+Help message
+'''
 
+def usage() :
+    
+    sys.stderr.write('''
+
+    selectHumanGeneID.py
+    
+    This module checks the similarity between a CDS reference and 
+    its associated protein reference.
+    
+    Usage :  python3 selectHumanGeneID.py gene_orthologs.tsv output_fasta_folder
+    
+    - gene_orthologs.tsv : is supposed to have 5 fields and to contain only 1:1 ortholgs:
+        tax_id GeneID  relationship    Other_tax_id    Other_GeneID 
+        (following NCBI convention: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene-ortholog.gz )
+    
+    -core_species.list should contain one taxon id per line, for a core made of Homo Sapiens, Mus musculus and Canis Lupus
+    familiaris it will be (human should always be first):
+        9606
+        10090
+        9615
+    ''')
+
+#------------------------------------------------------------------------------
+'''
+  
+'''
 
 def readSpeciesCoreIds (core_species_file):
     IDlist = []
@@ -22,6 +43,11 @@ def readSpeciesCoreIds (core_species_file):
             geneID = parse[0]
             IDlist.append(geneID)
     return (IDlist)
+
+#------------------------------------------------------------------------------
+'''
+
+'''
 
 def selectHumanGeneID(ortholog_file, core_species_file, res_file):
     #print (core_species_file)
@@ -53,14 +79,18 @@ def selectHumanGeneID(ortholog_file, core_species_file, res_file):
         for ids in core_set:
             output.write(ids+"\n")
        
+#------------------------------------------------------------------------------
+'''
+  Main
+'''
 
 if __name__ == "__main__" :
     if len (sys.argv) != 4:
-        helpMessage()
+        usage()
         sys.exit()
+    else :
+        ortholog_file=sys.argv[1]           # gene_ortholog (NCBI)
+        core_species_file=sys.argv[2]       # HomoMusCanis.id
+        res_file=sys.argv[3]                # répertoire de travail (destination)
 
-    ortholog_file=sys.argv[1]           # gene_ortholog (NCBI)
-    core_species_file=sys.argv[2]       # HomoMusCanis.id
-    res_file=sys.argv[3]                # répertoire de travail (destination)
-
-    selectHumanGeneID(ortholog_file, core_species_file, res_file)           
+        selectHumanGeneID(ortholog_file, core_species_file, res_file)           
