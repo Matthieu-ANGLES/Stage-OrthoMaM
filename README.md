@@ -7,13 +7,15 @@ Programme principal :
 
 	buildOrtholog.py
  
-  Programme secondaire (importé) :
+  Programmes secondaires (importé) :
   
     selectHumanGeneID.py
     
     downloadRelevantGCF.py
     
     addGenomes.py
+    
+    checkSequences.py (en cours d'écriture)
 
 Lancement :
 
