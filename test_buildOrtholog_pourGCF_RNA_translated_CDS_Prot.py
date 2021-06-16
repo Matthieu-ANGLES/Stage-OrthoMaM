@@ -34,7 +34,7 @@ def usage():
     
     This program build ortholog fasta files.
     
-    Usage : python3 buildOrtholog.py assembly_summary.tsv gene_orthologs.tsv core_species.list output_fasta_folder
+    Usage : python3 buildOrtholog.py assembly_summary.tsv core_species.list gene_orthologs.tsv output_fasta_folder
     
     - assembly_summary.tsv : is supposed to have 22 fields including :
         assembly_accession  refseq_category taxid   organisme_name  ftp_path (to download the GCF files)

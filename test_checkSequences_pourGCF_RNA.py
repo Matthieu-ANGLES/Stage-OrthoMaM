@@ -176,6 +176,67 @@ def parseFastaFile (outputFolder, type):
 
 #------------------------------------------------------------------------------
 '''
+  Make codon stop correction in fastafile RNAtoCDS
+'''
+def correctedFastaFile (outputFastaFolder, type, targetGeneID):
+
+  listFastaFiles = makeListOfFastaFile(outputFastaFolder,type)
+  for fastaFile in listFastaFiles :
+    ext = fastaFile.split("_")
+    geneID = ext[0]
+    targetFastaFile = outputFastaFolder+os.path.sep+geneID+"_"+type+".fasta"
+    if geneID == targetGeneID:
+
+      # tentative 1 ne fonctionne pas
+      with open (targetFastaFile) as fastaFile :
+        for line in fastaFile :
+          if line.startswith(">"):
+            continue
+          else :
+            if line.count("*") != 0 :
+              print (geneID)
+              print (line)
+              line = line.replace("*","X")
+              print (line)
+              
+      
+      ''' tentative 2
+      with open (targetFastaFile, 'r') as fastaFile :
+        contenu = fastaFile.read()
+      fastaFile.close
+
+      lignes_contenu = contenu.split("\n")
+      for line in lignes_contenu :
+        if line.startswith(">"):
+          continue
+        else :
+          if line.count("*") !=0 :
+            line = line.replace("*","X")
+      contenu = "\n".join(lignes_contenu)
+
+      with open (targetFastaFile, 'w') as fastaFile :
+        fastaFile.write(contenu)
+      '''
+
+
+#------------------------------------------------------------------------------
+'''
+  Make a copy of fasta file
+'''
+
+def copyFastaFile (outputFastaFolder, type, targetGeneID, copyFolder):
+
+  listFastaFiles = makeListOfFastaFile(outputFastaFolder,type)
+  for fastaFile in listFastaFiles :
+    ext = fastaFile.split("_")
+    geneID = ext[0]
+    targetFastaFile = outputFastaFolder+os.path.sep+geneID+"_"+type+".fasta"
+    copyTargetFastaFile = copyFolder+os.path.sep+geneID+"_"+type+".fasta"
+    if geneID == targetGeneID :
+      os.system("cp "+targetFastaFile+" "+copyTargetFastaFile)
+
+#------------------------------------------------------------------------------
+'''
   Compare NT sequence and AA sequences per gene.
     Used methods : translateMACSE, makeListOfFastaFile, parseFastaFile 
     Make lists :
@@ -226,7 +287,7 @@ def checkDownloadedSequences(outputFolder):
     #print (gene)
     #print (dicoCDS_WithDollar[gene])
     dicoCDS[gene] = dicoCDS_WithDollar[gene].replace("$","")
-    dicoTranslatedCDS[gene] = dicoTranslatedCDS_WithDollar[gene].replace("$","")
+    #dicoTranslatedCDS[gene] = dicoTranslatedCDS_WithDollar[gene].replace("$","")
     dicoProt[gene] = dicoProt_WithDollar[gene].replace("$","")
     
     if gene in dicoTranslatedRNAtoCDS_WithDollar.keys():
@@ -240,7 +301,7 @@ def checkDownloadedSequences(outputFolder):
   listGenesOk = []
   listGenesNotOk = []
   listGeneNotInDicoRNAtoCDS = []
-  for gene in dicoTranslatedCDS.keys() :
+  for gene in dicoCDS.keys() :
     if gene in dicoTranslatedRNAtoCDS.keys():
       if dicoTranslatedRNAtoCDS[gene] == dicoProt[gene] :
         listGenesOk.append(gene)
@@ -314,6 +375,7 @@ def checkDownloadedSequences(outputFolder):
         if (ratio < 0.60) :
           seqRatioInf60.append(gene)
   
+  # Correction des listes
   for gene in geneCorrectionStopCodonList_RNAtoCDS :
     listGenesOk.append(gene)
     listGenesNotOk.remove(gene)
@@ -322,11 +384,11 @@ def checkDownloadedSequences(outputFolder):
   print ("Genes with good CDS sequences vs proteins references : \n", str(len(listGenesOk)))
   print ("Genes with wrong CDS sequences vs proteins references (or wrong translation) : \n",str(len(listGenesNotOk)))
   print ("Concerned genes : ",str(len(geneCorrectionStopCodonList_RNAtoCDS)),"\n")
-
+  #print (geneCorrectionStopCodonList_RNAtoCDS)
 
   print("------------------------------------------------------------------------")
 
-  
+  '''
   print ("number of sequences with a distance = 1 : ",str(len(seqDistanceEgalOne)),"\n",seqDistanceEgalOne,"\n")
   print ("number of sequences with a distance = 2 : ",str(len(seqdistanceEgalTwo)),"\n",seqdistanceEgalTwo,"\n")
   print ("number of sequences with a distance = 3 : ",str(len(seqDistanceEgalThree)),"\n",seqDistanceEgalThree,"\n")
@@ -342,7 +404,27 @@ def checkDownloadedSequences(outputFolder):
   print ("number of sequences with a ratio < 0.60 : ",str(len(seqRatioInf60)),"\n",seqRatioInf60,"\n")
 
   print("------------------------------------------------------------------------")
-  
+  '''
+
+  # Comparaison/vérification avec les CDS des GCF (voir si on peut compléter avec)
+  geneCorrectionWithCDSFile = []
+  for gene in listGenesNotOk :
+    if dicoCDS[gene].count("*") != 0 :
+      dicoCDS[gene] = dicoCDS[gene].replace("*","X")
+    if dicoCDS[gene] == dicoProt[gene] :
+      geneCorrectionWithCDSFile.append(gene)
+
+  # Correction des listes
+  for gene in geneCorrectionWithCDSFile :
+    listGenesOk.append(gene)
+    listGenesNotOk.remove(gene)
+
+  print ("After check with CDS (GCF) files :")
+  print ("Genes with good CDS sequences vs proteins references : \n", str(len(listGenesOk)))
+  print ("Genes with wrong CDS sequences vs proteins references (or wrong translation) : \n",str(len(listGenesNotOk)))
+  print ("Concerned genes : ",str(len(geneCorrectionWithCDSFile)),"\n")
+
+
 
   ##### bash commands #####
   # voir pour amélioration / ajustement chemin ?
@@ -410,11 +492,6 @@ def checkDownloadedSequences(outputFolder):
       if gene in geneDistanceEgalOne :
         print ()
   '''
-
-
-
-
-
 
   ##### Créations fichiers de sorties #####
   '''
@@ -490,6 +567,45 @@ def checkDownloadedSequences(outputFolder):
   
   print ("The file 'output_RNAtoCDS.stats' was created.")
 
+
+
+  
+  # Correction des RNAtoCDS traduits (codon stop transformé en X) selon la liste des gènes qui ont necessité cette modif pour passer le filtre
+  # NE FONCTIONNE PAS
+  '''
+  outputFastaFolder = outputFolder+os.path.sep+"FASTA"
+
+  for gene in geneCorrectionStopCodonList_RNAtoCDS :
+    correctedFastaFile (outputFastaFolder, "RNAtoCDStranslate", gene)
+  '''
+
+
+
+  
+  # Copie des fichiers fasta pour les geneID contenues dans listGeneNotOk
+  '''
+  outputFastaFolder = outputFolder+os.path.sep+"FASTA"
+  outputRNAFastaFolder = outputFolder+os.path.sep+"FASTA_GeneNotOk_RNA"
+  outputRNAtoCDSFastaFolder = outputFolder+os.path.sep+"FASTA_GeneNotOk_RNAtoCDS"
+  outputTRANSLATEDRNAtoCDSFastaFolder = outputFolder+os.path.sep+"FASTA_GeneNotOk_TRANSLATEDRNAtoCDS"
+  outputProteinFastaFolder = outputFolder+os.path.sep+"FASTA_GeneNotOk_Protein"
+
+  os.system("mkdir "+outputRNAFastaFolder)
+  os.system("mkdir "+outputRNAtoCDSFastaFolder)
+  os.system("mkdir "+outputTRANSLATEDRNAtoCDSFastaFolder)
+  os.system("mkdir "+outputProteinFastaFolder)
+
+  for gene in listGenesNotOk :
+    copyFastaFile (outputFastaFolder, "RNA", gene, outputRNAFastaFolder)
+    copyFastaFile (outputFastaFolder, "RNAtoCDS", gene, outputRNAtoCDSFastaFolder)
+    copyFastaFile (outputFastaFolder, "RNAtoCDStranslate", gene, outputTRANSLATEDRNAtoCDSFastaFolder)
+    copyFastaFile (outputFastaFolder, "AA", gene, outputProteinFastaFolder)
+  
+  print("------------------------------------------------------------------------")
+  print ("The file 'FASTA_GeneNotOk_RNAtoCDS' was created.")
+  print ("The file 'FASTA_GeneNotOk_TRANSLATEDRNAtoCDS' was created.")
+  print ("The file 'FASTA_GeneNotOk_Protein' was created.")
+  '''
 
 
 

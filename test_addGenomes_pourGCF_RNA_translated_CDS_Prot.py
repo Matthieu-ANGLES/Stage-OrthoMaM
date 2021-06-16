@@ -278,7 +278,7 @@ def addRNASeq (seqName, seq, outputFastaFolder, geneIDtoNameGene, geneToLongestR
 '''
 Fonction de récupération et d'écriture des séquences protéiques au format fasta (par gène) dans un répertoire
 '''
-def addRNASeq (seqName, seq, protIDtogeneID, protIDtoRNAacc, outputFastaFolder, taxonName, taxonID) : 
+def addRNASeq (seqName, seq, protIDtogeneID, protIDtoRNAacc, outputFastaFolder, outputInfoFolder, taxonName, taxonID) : 
 
     currentRNAacc = getRNAacc(seqName)
     key_list = [k for (k, v) in protIDtoRNAacc.items() if v[0] == currentRNAacc]
@@ -302,6 +302,8 @@ def addRNASeq (seqName, seq, protIDtogeneID, protIDtoRNAacc, outputFastaFolder, 
                 if currentProtID != "" and currentProtID in protIDtoRNAacc.keys() :
                     fastaFileName = outputFastaFolder+os.path.sep+humanGene+"_RNA.fasta"
                     fastaFileNameforCkeck = outputFastaFolder+os.path.sep+humanGene+"_RNAtoCDS.fasta"
+                    infoFileName = outputInfoFolder+os.path.sep+humanGene+"_RNAtoCDS.info"
+
                     #print (currentRNAacc)
                     #print (currentProtID)
                     #print (humanGene)
@@ -316,8 +318,14 @@ def addRNASeq (seqName, seq, protIDtogeneID, protIDtoRNAacc, outputFastaFolder, 
                     # Construction CDS à partir du fichier GBFF et de la sequence RNA
                     with open (fastaFileNameforCkeck,'a+') as otherFastaFile :
                         newSeq = seq[startMarker:endMarker]
-                        newSeqName = ">[taxonID="+taxonID+"] "+"[taxonName="+taxonName+"] "+"[CDSLength="+str(len(seq))+"] "+" (...CDS maked with RNA gbff informations...)"
+                        newSeqName = ">[taxonID="+taxonID+"] "+"[taxonName="+taxonName+"] "+"[CDSLength="+str(len(seq))+"] "+"[CDSgbff="+curentValues[1]+"]"+" (CDS maked with RNA gbff informations of"+currentRNAacc+")"
                         otherFastaFile.write(newSeqName+"\n"+newSeq+"\n")
+
+                    with open (infoFileName,'a+') as infoFile :
+                        #newSeqName = ">[taxonID="+taxonID+"] "+"[taxonName="+taxonName+"] "+"[CDSLength="+str(len(seq))+"] "+seqName[1:]
+                        newSeqName = ">[taxonID="+taxonID+"] "+"[taxonName="+taxonName+"] "+"[CDSLength="+str(len(seq))+"] "+"[CDSgbff="+curentValues[1]+"]"+" (CDS maked with RNA gbff informations of"+currentRNAacc+")"
+                        infoFile.write(newSeqName+"\n"+seq+"\n")
+  
 
 
 
@@ -483,14 +491,14 @@ def addGenome(listIdentOrthoMaM, orthologFile, GCFcdsFile, GCFproteinFile, GCFRN
             if line.startswith(">") :
                 if first == False :
                     #print (seqName)
-                    addRNASeq(seqName, seq, protIDtogeneID, protIDtoRNAacc, outputFastaFolder, taxonName, taxonID)
+                    addRNASeq(seqName, seq, protIDtogeneID, protIDtoRNAacc, outputFastaFolder, outputInfoFolder taxonName, taxonID)
                 seqName = line.strip()
                 seq = ""
                 first = False
             else :
                 seq += line.strip()
         if first == False :
-            addRNASeq(seqName, seq, protIDtogeneID, protIDtoRNAacc, outputFastaFolder, taxonName, taxonID)
+            addRNASeq(seqName, seq, protIDtogeneID, protIDtoRNAacc, outputFastaFolder, outputInfoFolder taxonName, taxonID)
 
 
 
