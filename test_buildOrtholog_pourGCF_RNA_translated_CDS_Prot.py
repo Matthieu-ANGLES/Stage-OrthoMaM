@@ -107,10 +107,10 @@ if __name__ == "__main__" :
         
         os.system("mkdir "+outputFastaFolder)
         os.system("mkdir "+outputInfoFolder)
-        #os.system("mkdir "+outputGCFFolder)
+        os.system("mkdir "+outputGCFFolder)
 
-        #print ("Download GCF :")
-        #downloadGCF(summaryFile,outputGCFFolder, outputGCFList)
+        print ("Download GCF :")
+        downloadGCF(summaryFile,outputGCFFolder, outputGCFList)
         print ("select Human GeneID :")
         selectHumanGeneID(orthologFile, coreTaxonList,humanGeneIDList)
         print ("build Fasta :")
