@@ -537,7 +537,7 @@ def checkDownloadedSequences(outputFolder):
   #translateCDSMACSE(outputFolder)
 
   # Translate RNAtoCDS fasta file (*_RNAtoCDS.fasta) with MACSE (create *_RNAtoCDStranslated.fasta files) #####
-  #translateRNAtoCDSMACSE(outputFolder)
+  translateRNAtoCDSMACSE(outputFolder)
 
   # Bash primary stats (Homo, Mus, Canis)
   #bashCommands (outputFolder)
