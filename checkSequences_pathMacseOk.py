@@ -83,7 +83,14 @@ def translateRNAtoCDSMACSE(outputFolder):
     geneID = ext[0]
     pathFile = path+os.path.sep+fastaFilesDirectory+os.path.sep+fastaFile
     pathOutputFile = path+os.path.sep+fastaFilesDirectory+os.path.sep+geneID+"_RNAtoCDStranslated.fasta"
-    cmdMACSE = "java -jar /home/lenovo/Documents/Logiciels/macse_v2.05.jar -prog translateNT2AA -out_AA " + pathOutputFile + " -seq " + pathFile
+    
+    pathFile = fastaFilesDirectory+os.path.sep+fastaFile
+    pathOutputFile = fastaFilesDirectory+os.path.sep+geneID+"_RNAtoCDStranslated.fasta"
+    cmdMACSE = "java -jar /share/apps/bin/macse_v2.01b.jar -prog translateNT2AA -out_AA " + pathOutputFile + " -seq " + pathFile
+
+    #pathFile = path+os.path.sep+fastaFilesDirectory+os.path.sep+fastaFile
+    #pathOutputFile = path+os.path.sep+fastaFilesDirectory+os.path.sep+geneID+"_RNAtoCDStranslated.fasta"
+    #cmdMACSE = "java -jar /home/lenovo/Documents/Logiciels/macse_v2.05.jar -prog translateNT2AA -out_AA " + pathOutputFile + " -seq " + pathFile
     print (cmdMACSE)
     print ("Translate ",str(cpt),"/ ",str(len(listFastaFiles))," :")
     os.system(cmdMACSE)
@@ -398,7 +405,7 @@ def differenceMaker(RNAtoCDSSequence, RNAtoCDSHeader, proteinSequence, proteinHe
   #   lenDict = 1   if 'absence'   = [False]
   
   taxonPresenceInRNAtoCDSFile = {}
-  #   taxonPresenceInRNAtoCDSFile[taxonID] = ['bool-presence','bool-stopCodonCorrectionNecessity', 'bool-equality', 'mut-position(s)]
+  #   taxonPresenceInRNAtoCDSFile[taxonID] = ['bool-presence','bool-stopCodonCorrectionNecessity', 'bool-equality']
   #   lenDict = 1   if 'absence'  = [False]
   #   lenDict = 3   if 'presence','No-stopCodonCorrection','equality'  = [True,False,True]
   #   lenDict = 3   if 'presence','stopCodonCorrection','equality'     = [True,True,True]
@@ -537,10 +544,10 @@ def checkDownloadedSequences(outputFolder):
   #translateCDSMACSE(outputFolder)
 
   # Translate RNAtoCDS fasta file (*_RNAtoCDS.fasta) with MACSE (create *_RNAtoCDStranslated.fasta files) #####
-  #translateRNAtoCDSMACSE(outputFolder)
+  translateRNAtoCDSMACSE(outputFolder)
 
   # Bash primary stats (Homo, Mus, Canis)
-  bashCommands (outputFolder)
+  #bashCommands (outputFolder)
 
   # Open GCF.list for create three lists for taxons (taxonName taxonID and taxonClassif)
   GCFlistPath = outputFolder+os.path.sep+"GCF"+os.path.sep+"GCF.list"
@@ -560,10 +567,9 @@ def checkDownloadedSequences(outputFolder):
   outputFile = outputFolder+os.path.sep+"resume_fastaSequences.stats"
   with open (outputFile, 'a+') as output :
     for i in range(0,len(orthomamTaxonNameList)):
-      print (orthomamTaxonNameList[i]," / ",orthomamTaxonIDList[i]," / ",orthomamTaxonClassifList[i], flush=True)
+      print (orthomamTaxonNameList[i]," / ",orthomamTaxonIDList[i]," / ",orthomamTaxonClassifList[i])
       output.write(str(orthomamTaxonNameList[i])+" / "+str(orthomamTaxonIDList[i])+" / "+str(orthomamTaxonClassifList[i])+"\n")
     output.write ("------------------------------------------------------------------------\n")
-  output.closed
 
   # Dictionnary with '$' behind each sequences (AVEC DICO SEQ ET DICO HEADER)
   dicoCDS_WithDollar, dicoCDS_header_WithDollar = parseFastaFile(outputFolder, "NT")
@@ -571,9 +577,8 @@ def checkDownloadedSequences(outputFolder):
   dicoRNA_WithDollar, dicoRNA_header_WithDollar = parseFastaFile(outputFolder, "RNA")
   dicoRNAtoCDS_WithDollar, dicoRNAtoCDS_header_WithDollar = parseFastaFile(outputFolder, "RNAtoCDS")
   dicoTranslatedRNAtoCDS_WithDollar, dicoTranslatedRNAtoCDS_header_WithDollar = parseFastaFile(outputFolder, "RNAtoCDStranslated")
-  #print (dicoTranslatedRNAtoCDS_WithDollar.keys())
 
-  print("\n////////////////////////////////////////////////////////////////////////\n", flush=True)
+  print("\n////////////////////////////////////////////////////////////////////////\n")
 
 
   # Stats : RNAtoCDStranslated.fasta sequence with differenceMaker() function (line 255)
@@ -590,7 +595,7 @@ def checkDownloadedSequences(outputFolder):
   #       lenDict = 1   if 'presence'  = [True]
   #       lenDict = 1   if 'absence'   = [False]
   
-  # ==> taxonPresenceInRNAtoCDSFile[taxonID] = ['bool-presence','bool-stopCodonCorrectionNecessity', 'bool-equality', 'mut-position(s)]
+  # ==> taxonPresenceInRNAtoCDSFile[taxonID] = ['bool-presence','bool-stopCodonCorrectionNecessity', 'bool-equality']
   #       lenDict = 1   if 'absence'  = [False]
   #       lenDict = 3   if 'presence','No-stopCodonCorrection','equality'  = [True,False,True]
   #       lenDict = 3   if 'presence','stopCodonCorrection','equality'     = [True,True,True]
@@ -599,42 +604,20 @@ def checkDownloadedSequences(outputFolder):
 
   outputFile = outputFolder+os.path.sep+"resume_fastaSequences.stats"
   with open (outputFile, 'a+') as output :
-    print("Parsing of the files and use of the dictionaries (verifications/stats) :", flush=True)
+    print("Parsing of the files and use of the dictionaries (verifications/stats) :")
     output.write("Number of geneID fasta files : "+ str(len(geneIDtoRNAtoCDSFilesStats))+"\n")
-    print ("Number of geneID fasta files (RNAtoCDS) : ", len(geneIDtoRNAtoCDSFilesStats),"\n", flush=True)
+    print ("Number of geneID fasta files (RNAtoCDS) : ", len(geneIDtoRNAtoCDSFilesStats),"\n")
     output.write ("------------------------------------------------------------------------\n")
-  output.closed
 
   # Fichier avec taxons pillier et avec tous les taxons :
-  print ("Fichier avec taxons pillier et avec tous les taxons :")
+  #print ("Fichier avec taxons pillier et avec tous les taxons :")
   geneIDWithAllTaxons = []
   geneIDWithCoreTaxons = []
-
-  #-----
-  # partie ajouté pour calcul avec 152 taxons (cf liste des taxons avec 0 séquences ci-dessous)
-    # Taxon : Gorilla_gorilla_gorilla(9595)
-    # Taxon : Saimiri_boliviensis_boliviensis(39432)
-    # Taxon : Microtus_oregoni(111838)
-    # Taxon : Vulpes_lagopus(494514)
-    # Taxon : Arvicola_amphibius(1047088)
-    # Taxon : Orycteropus_afer_afer(1230840)
-    # Taxon : Puma_yagouaroundi(1608482)
-    # Taxon : Neophocaena_asiaeorientalis_asiaeorientalis(1706337)
-    # Taxon : Carlito_syrichta(1868482)
-    # Taxon : Cebus_imitator(2715852)
-  newTaxonlist = []
-  noSeqTaxonList = ['9595','39432', '111838', '494514', '1047088', '1230840', '1608482', '1706337', '1868482', '2715852']
-  for tax in orthomamTaxonIDList :
-    if tax not in noSeqTaxonList :
-      newTaxonlist.append(tax)
-  #-----
-
   coreTaxonsList = ['9615','10090','9606']
   for geneID in dicoTranslatedRNAtoCDS_WithDollar.keys():
     cptTaxons = []
     cptCoresTaxons = []
-    #for taxonID in orthomamTaxonIDList :
-    for taxonID in newTaxonlist :
+    for taxonID in orthomamTaxonIDList :
       extractPresenceRNAtoCDS = geneIDtoRNAtoCDSFilesStats[geneID][taxonID][0]
       if extractPresenceRNAtoCDS == True :
         cptTaxons.append(taxonID)
@@ -646,10 +629,10 @@ def checkDownloadedSequences(outputFolder):
     if len(cptCoresTaxons) == 3 :
       geneIDWithCoreTaxons.append(gene)
 
-  print (len(geneIDWithCoreTaxons)," fichiers RNAtoCDS ont au moins les séquences pour Homo, Mus et Canis")
-  print (len(geneIDWithAllTaxons)," fichiers RNAtoCDS ont les séquences de tous les taxons")
-  print ("(sur ",len(geneIDtoRNAtoCDSFilesStats),")")
-  print("------------------------------------------------------------------------\n")
+  #print (len(geneIDWithCoreTaxons)," fichiers RNAtoCDS ont au moins les séquences pour Homo, Mus et Canis")
+  #print (len(geneIDWithAllTaxons)," fichiers RNAtoCDS ont les séquences de tous les taxons")
+  #print ("(sur ",len(geneIDtoRNAtoCDSFilesStats),")")
+  #print("------------------------------------------------------------------------\n")
 
 
   # Nbr de séquences avec ou sans discordance avec la référence protéique associé :
@@ -699,19 +682,19 @@ def checkDownloadedSequences(outputFolder):
   
   outputFile = outputFolder+os.path.sep+"resume_fastaSequences.stats"
   with open (outputFile, 'a+') as output :
-    print("------------------------------------------------------------------------\n", flush=True)
+    print("------------------------------------------------------------------------\n")
     output.write("Out of "+str(cptSeq)+" translated RNAtoCDS (total in all files) :\n")
-    print ("Out of ",cptSeq," translated RNAtoCDS (total in all files) :", flush=True)
+    print ("Out of ",cptSeq," translated RNAtoCDS (total in all files) :")
     
     output.write("  - "+str(cptOk)+ " are similar to the corresponding protein.\n")
-    print ("  - ",cptOk, " are similar to the corresponding protein.", flush=True)
+    print ("  - ",cptOk, " are similar to the corresponding protein.")
     
     output.write("  - "+str(cptNotOk)+ " are discordant. (of which, "+str(cptCodonStartMutation)+" concern the start codon only)\n")
-    print ("  - ",cptNotOk, " are discordant. (of which, ",cptCodonStartMutation," concern the start codon only)\n", flush=True)
+    print ("  - ",cptNotOk, " are discordant. (of which, ",cptCodonStartMutation," concern the start codon only)\n")
     output.write("See 'sequencesWithMutations_ExceptOnlyFirstCodonMutation.seq'\n")
     output.write("See 'sequencesWithOnlyFirstCodonMutation.seq'\n")
     output.write("------------------------------------------------------------------------\n")
-  output.closed
+
 
 
   # Output File
@@ -721,8 +704,8 @@ def checkDownloadedSequences(outputFolder):
     cptSeq += len(taxonIDList)
     outputNameFile = "sequencesWithMutations_ExceptOnlyFirstCodonMutation.seq"
     toStringOutputFastaSequences(geneID, taxonIDList, outputFolder, outputNameFile)
-  print ("The file 'sequencesWithMutations_ExceptOnlyFirstCodonMutation.seq' was created.", flush=True)
-  print ("(",cptSeq," sequences in ",len(dicoGeneIDtoTaxonIDWithSeqNotOk_WithoutStartCodonMutation.keys())," fasta files)", flush=True)
+  print ("The file 'sequencesWithMutations_ExceptOnlyFirstCodonMutation.seq' was created.")
+  print ("(",cptSeq," sequences in ",len(dicoGeneIDtoTaxonIDWithSeqNotOk_WithoutStartCodonMutation.keys())," fasta files)")
 
   cptSeq=0
   for geneID in dicoGeneIDtoTaxonIDWithSeqNotOk_startCodonConcerned.keys():
@@ -730,10 +713,10 @@ def checkDownloadedSequences(outputFolder):
     cptSeq += len(taxonIDList)
     outputNameFile = "sequencesWithOnlyFirstCodonMutation.seq"
     toStringOutputFastaSequences(geneID, taxonIDList, outputFolder, outputNameFile)
-  print ("The file 'sequencesWithOnlyFirstCodonMutation.seq' was created.", flush=True)
-  print ("(",cptSeq," sequences in ",len(dicoGeneIDtoTaxonIDWithSeqNotOk_startCodonConcerned.keys())," fasta files)", flush=True)
+  print ("The file 'sequencesWithOnlyFirstCodonMutation.seq' was created.")
+  print ("(",cptSeq," sequences in ",len(dicoGeneIDtoTaxonIDWithSeqNotOk_startCodonConcerned.keys())," fasta files)")
   
-  print("\n------------------------------------------------------------------------\n", flush=True)
+  print("\n------------------------------------------------------------------------\n")
 
 
   ####### ANCIENNE VERSION DE STATS A PARTIR DE LA = CONFRONTATIONS/TESTS AVEC COMMANDES BASH #######
@@ -872,13 +855,6 @@ def checkDownloadedSequences(outputFolder):
   outputFile = outputFolder+os.path.sep+"resume_fastaSequences.stats"
   infoFilesDirectory = outputFolder+os.path.sep+"INFO"+os.path.sep
 
-  seqNuc = 0
-  seqProt = 0
-  stopCodonCorrection = 0
-  firstCodonMut = 0
-  excludedSeq = 0
-  otherMut = 0
-
   with open (outputFile, 'a+') as output :
     i = 0
     for taxonID in orthomamTaxonIDList :
@@ -888,48 +864,26 @@ def checkDownloadedSequences(outputFolder):
       excludedSequences = os.popen(cmdBash).readlines()[0].strip()
 
       output.write("# Taxon : "+orthomamTaxonNameList[i]+"("+taxonID+")\n")
-      print ("# Taxon : ",orthomamTaxonNameList[i],"(",taxonID,")", flush=True)
+      print ("# Taxon : ",orthomamTaxonNameList[i],"(",taxonID,")")
       i+=1
 
       output.write("  We have : "+str(len(presentSequencesInRNAtoCDSFile))+"  RNAtoCDS sequences for "+str(len(presentSequencesInProtFile))+" protein sequences.\n")
       print ("  We have : ",len(presentSequencesInRNAtoCDSFile)," RNAtoCDS sequences for ",len(presentSequencesInProtFile)," protein sequences..")
 
       output.write("  "+str(len(goodSequencesWhenCodonStopCorrection))+" are concordant with the protein sequence when 'X' instead of '*'.\n")
-      print("  ",str(len(goodSequencesWhenCodonStopCorrection))," are concordant with the protein sequence when 'X' instead of '*'.", flush=True)
+      print("  ",str(len(goodSequencesWhenCodonStopCorrection))," are concordant with the protein sequence when 'X' instead of '*'.")
 
       output.write("  "+str(len(goodSequencesConsideredWhenStartCodonMutationOnly))+" have a single mutation in position 1 (start codon, 'non-AUG')."+"\n")
-      print("  ",str(len(goodSequencesConsideredWhenStartCodonMutationOnly))," have a single mutation in position 1 (start codon, 'non-AUG').", flush=True)
+      print("  ",str(len(goodSequencesConsideredWhenStartCodonMutationOnly))," have a single mutation in position 1 (start codon, 'non-AUG').")
 
       output.write("  "+str(excludedSequences)+" are excluded because one of the CDS bounds is outside the RNA sequence (> or <)"+"\n")
-      print("  ",str(excludedSequences)," are excluded because one of the CDS bounds is outside the RNA sequence (> or <)", flush=True)
+      print("  ",str(excludedSequences)," are excluded because one of the CDS bounds is outside the RNA sequence (> or <)")
 
       output.write("  "+str(len(badSequencesWithOtherMutations))+" have more than one mutation (except single mutation in position 1).\n\n")
-      print("  ",str(len(badSequencesWithOtherMutations))," have more than one mutation (except single mutation in position 1).\n", flush=True)
-  
-      # For Stats !
-      seqNuc += len(presentSequencesInRNAtoCDSFile)
-      seqProt += len(presentSequencesInProtFile)
-      stopCodonCorrection += len(goodSequencesWhenCodonStopCorrection)
-      firstCodonMut += len(goodSequencesConsideredWhenStartCodonMutationOnly)
-      excludedSeq += int(excludedSequences)
-      otherMut += len(badSequencesWithOtherMutations)
+      print("  ",str(len(badSequencesWithOtherMutations))," have more than one mutation (except single mutation in position 1).\n")
 
-  output.closed
       
-  # Final stats :
-  print("- ",seqNuc," nucleic sequences.")
-  print("- ",seqProt," protein sequences.")
-  print("- ",stopCodonCorrection," stop codon corrections.")
-  print("- ",firstCodonMut," first codon mutation only.")
-  print("- ",otherMut," other mutations.")
-  print("- ",excludedSeq," excluded sequences.")
-
-  
-      
-  print ("The file 'resume_fastaSequences.stats' was created.\n", flush=True)
-
-
-
+  print ("The file 'resume_fastaSequences.stats' was created.\n")
 
 
   # TESTS
