@@ -3,10 +3,10 @@
 
 import re, sys, os
 
-from v1_downloadRelevantGCF import downloadGCF
-from v1_selectHumanGeneID import selectHumanGeneID
-from v1_addGenomes import addGenome
-from v1_checkSequences import checkDownloadedSequences
+from downloadRelevantGCF import downloadGCF
+from selectHumanGeneID import selectHumanGeneID
+from addGenomes import addGenome
+from checkSequences import checkDownloadedSequences
 
 #-------------------------------------------------------------------------------------
 '''
@@ -98,6 +98,8 @@ if __name__ == "__main__" :
         coreTaxonIDFile = sys.argv[2]   # HomoMusCanis.id (core_species.list)
         orthologFile = sys.argv[3]      # gene_orthologs (NCBI)
         outputFolder = sys.argv[4]      # work directory
+
+        os.system("mkdir "+outputFolder)
 
         outputFastaFolder = outputFolder+os.path.sep+"FASTA"
         outputInfoFolder = outputFolder+os.path.sep+"INFO"
