@@ -12,15 +12,16 @@ def usage() :
     
     sys.stderr.write('''
     
-    Usage : Launch error.
-    'selectHumanGeneID.py'
-    
-    This module parses the 'gene_orthologs.tsv' file and generates a list of orthologous genes (human identifiers : 'humanGeneID.list')
+    This module parses the 'gene_orthologs' file and generates a list of orthologous genes (human identifiers : 'humanGeneID.list')
     between the core species list (HomoMusCanis.id = core_species.list)
-        
-    - gene_orthologs.tsv : is supposed to have 5 fields and to contain only 1:1 ortholgs:
+     
+    Usage :  (Requires three parameters)
+    python3 selectHumanGeneID.py gene_orthologs outputFolder(default, current directory)
+ 
+ 
+    - gene_orthologs : is supposed to have 5 fields and to contain only 1:1 ortholgs:
         tax_id  GeneID  relationship  Other_tax_id  Other_GeneID 
-        (following NCBI convention: http://ftp.ncbi.nlm.nih.gov/gene/DATA/ gene-ortholog.gz )
+        (following NCBI convention: http://ftp.ncbi.nlm.nih.gov/gene/DATA/gene-ortholog.gz )
     
     - core_species.list : should contain one taxon id per line, for a core made of Homo Sapiens, Mus musculus and Canis Lupus
     familiaris it will be (human should always be first):
@@ -33,11 +34,9 @@ def usage() :
       - https://www.ncbi.nlm.nih.gov/books/NBK50679/#RefSeqFAQ.ncbi_s_annotation_displayed_on
 
 
-    Usage :  (Requires four parameters)
-    python3 selectHumanGeneID.py gene_orthologs.tsv gene_orthologs.txt outputFolder(= work directory)
 
     ''')
-
+    
 #------------------------------------------------------------------------------
 '''
   Used in selectHumanGeneID() function
@@ -55,7 +54,7 @@ def readSpeciesCoreIds (coreTaxonIDFile):
 
 #------------------------------------------------------------------------------
 '''
-  Parsing function of the 'gene_orthologs.tsv' file to select the intersection of ortologous human genesID within the core species 
+  Parsing function of the 'gene_orthologs' file to select the intersection of ortologous human genesID within the core species 
   Generate 'humanGeneID.list' file.
 '''
 
@@ -69,20 +68,26 @@ def selectHumanGeneID(orthologFile, coreTaxonIDFile, humanGeneIDList):
     with open (orthologFile, 'r') as inputFile :
         for line in inputFile :
             ortho_info = line.strip().split("\t")
+
             spe1= ortho_info[0]
             spe2= ortho_info[3]
             if(spe1==speRef and spe2 in orthologsPerTax.keys()):
                 orthologsPerTax[spe2].add(ortho_info[1]) 
+
     
+
     coreSet=orthologsPerTax[coresTaxonIDList[1]]
     for spe, setIds in orthologsPerTax.items(): # make intersection of sets values with each core taxon
         coreSet = coreSet.intersection(setIds) 
-        print(spe, len(setIds))
+        print("The number of orthologous genes per core species" , spe , "is" , len(setIds))
+
+    print("The number of core genes is" , len(coreSet))
 
     with open (humanGeneIDList, 'a+') as output :
         for ids in coreSet:
             output.write(ids+"\n")
-       
+  
+     
 #------------------------------------------------------------------------------
 '''
   Main
