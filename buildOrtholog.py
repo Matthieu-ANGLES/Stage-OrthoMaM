@@ -3,10 +3,10 @@
 
 import re, sys, os
 
-from downloadRelevantGCF import downloadGCF
-from selectHumanGeneID import selectHumanGeneID
-from addGenomes import addGenome
-from checkSequences import checkDownloadedSequences
+from v1_downloadRelevantGCF import downloadGCF
+from v1_selectHumanGeneID import selectHumanGeneID
+from v1_addGenomes import addGenome
+from v1_checkSequences import checkDownloadedSequences
 
 #-------------------------------------------------------------------------------------
 '''
@@ -25,7 +25,7 @@ def usage():
 
     - assembly_summary.tsv : is supposed to have 22 fields including :
         assembly_accession  refseq_category taxid   organisme_name  ftp_path (to download the GCF files)
-        (following NCBI convention: https://ftp.ncbi.nlm.nih.gov/genomes/genbank/vertebrate_mammalian/ assembly_summary.txt)
+        (following NCBI convention: https://ftp.ncbi.nlm.nih.gov/genomes/refseq/vertebrate_mammalian/ assembly_summary.txt)
         WARNING : REMEMBER TO DELETE THE HYBRID TAXON (30522) FROM THE FILE (Bos indicus x Bos taurus)
 
     - gene_orthologs.tsv : is supposed to have 5 fields and to contain only 1:1 ortholgs:
@@ -98,8 +98,6 @@ if __name__ == "__main__" :
         coreTaxonIDFile = sys.argv[2]   # HomoMusCanis.id (core_species.list)
         orthologFile = sys.argv[3]      # gene_orthologs (NCBI)
         outputFolder = sys.argv[4]      # work directory
-
-        os.system("mkdir "+outputFolder)
 
         outputFastaFolder = outputFolder+os.path.sep+"FASTA"
         outputInfoFolder = outputFolder+os.path.sep+"INFO"

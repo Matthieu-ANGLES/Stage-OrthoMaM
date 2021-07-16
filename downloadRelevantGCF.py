@@ -17,7 +17,7 @@ def usage() :
     'downloadRalevantGCF.py'
 
     Use the 'assembly_summary.txt' retrieved at the bottom of the list at this address
-      - https://ftp.ncbi.nlm.nih.gov/genomes/genbank/vertebrate_mammalian/
+      - https://ftp.ncbi.nlm.nih.gov/genomes/refseq/vertebrate_mammalian/
 
     
     This module generate the "GCF.list" file used by 'addGenomes.py' in the GCF File.
