@@ -37,7 +37,7 @@ Fonction usage du module buildOrthologs :
 
     - assembly_summary.tsv : is supposed to have 22 fields including :
         assembly_accession  refseq_category taxid   organisme_name  ftp_path (to download the GCF files)
-        (following NCBI convention: https://ftp.ncbi.nlm.nih.gov/genomes/genbank/vertebrate_mammalian/ assembly_summary.txt)
+        (following NCBI convention: https://ftp.ncbi.nlm.nih.gov/genomes/refseq/assembly_summary_refseq.txt)
         WARNING : REMEMBER TO DELETE THE HYBRID TAXON (30522) FROM THE FILE (Bos indicus x Bos taurus)
 
     - core_species.list : should contain one taxon id per line, for a core made of Homo Sapiens, Mus musculus and Canis Lupus
