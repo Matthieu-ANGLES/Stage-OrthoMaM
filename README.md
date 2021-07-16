@@ -33,26 +33,26 @@ ________________________________________________________________________________
 Fonction usage du module buildOrthologs :
     
     This program build ortholog fasta files of orthologous genes using the human gene identifier as a cross reference and three core taxa.
-    
+        
+    Usage :  (Requires five parameters)
+    python3 buildOrtholog.py assembly_summary_refseq.txt core_species.list gene_orthologs outputFolder(= work directory)
 
-    - assembly_summary.tsv : is supposed to have 22 fields including :
+    - assembly_summary_refseq.txt : is supposed to have 22 fields including :
         assembly_accession  refseq_category taxid   organisme_name  ftp_path (to download the GCF files)
-        (following NCBI convention: https://ftp.ncbi.nlm.nih.gov/genomes/refseq/assembly_summary_refseq.txt)
+        (following NCBI convention: https://ftp.ncbi.nlm.nih.gov/genomes/refseq/vertebrate_mammalian/assembly_summary.txt)
         WARNING : REMEMBER TO DELETE THE HYBRID TAXON (30522) FROM THE FILE (Bos indicus x Bos taurus)
-
+        
     - core_species.list : should contain one taxon id per line, for a core made of Homo Sapiens, Mus musculus and Canis Lupus
     familiaris it will be (human should always be first):
         9606        (Homo sapiens)
         10090       (Mus musculus)
         9615        (Canis Lupus familiaris)
-	
-    - gene_orthologs.tsv : is supposed to have 5 fields and to contain only 1:1 ortholgs:
+
+    - gene_orthologs : is supposed to have 5 fields and to contain only 1:1 ortholgs:
         tax_id GeneID  relationship    Other_tax_id    Other_GeneID 
         (following NCBI convention: http://ftp.ncbi.nlm.nih.gov/gene/DATA/ gene-ortholog.gz )
 
-
-
-    Usefull links : 
+    Useful links : 
       - https://www.ncbi.nlm.nih.gov/genome/doc/ftpfaq/#downloadservice
       - https://www.ncbi.nlm.nih.gov/books/NBK50679/#RefSeqFAQ.ncbi_s_annotation_displayed_on
 
