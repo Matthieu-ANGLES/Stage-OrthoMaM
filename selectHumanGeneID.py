@@ -29,7 +29,7 @@ def usage() :
         10090       (Mus musculus)
         9615        (Canis Lupus familiaris)
 
-    Usefull links : 
+    Useful links : 
       - https://www.ncbi.nlm.nih.gov/genome/doc/ftpfaq/#downloadservice
       - https://www.ncbi.nlm.nih.gov/books/NBK50679/#RefSeqFAQ.ncbi_s_annotation_displayed_on
 
